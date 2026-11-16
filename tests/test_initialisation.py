@@ -1,16 +1,8 @@
 import unittest
 
-from hello_world import greet
+from hello_world import initialise_rover, greet
 from rover import Rover
 
-rover = Rover()
-
-def initialise_rover(input):
-    rover.initialise(input)
-    (x,y) = rover.get_x_y()
-    direction = rover.get_direction()
-    direction_string_mapping = {"N": "north"}
-    return f"The rover is at X={x}, Y={y}, facing {direction_string_mapping[direction]}. Please enter instructions..."
 
 
 class InitialisationTests(unittest.TestCase):
