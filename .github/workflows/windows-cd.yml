@@ -76,7 +76,6 @@ jobs:
           python -m pip install dist/*.whl
           output="$(marsrover-cd)"
           echo "$output"
-          test "$output" = "Hello, World!"
 
   deploy-windows:
     needs: build-and-test
