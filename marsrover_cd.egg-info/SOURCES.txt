@@ -1,8 +1,0 @@
-README.md
-hello_world.py
-pyproject.toml
-marsrover_cd.egg-info/PKG-INFO
-marsrover_cd.egg-info/SOURCES.txt
-marsrover_cd.egg-info/dependency_links.txt
-marsrover_cd.egg-info/top_level.txt
-tests/test_hello_world.py

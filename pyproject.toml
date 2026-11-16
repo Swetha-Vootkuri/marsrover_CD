@@ -10,5 +10,8 @@ requires-python = ">=3.8"
 license = { text = "MIT" }
 dependencies = []
 
+[project.scripts]
+marsrover-cd = "hello_world:main"
+
 [tool.setuptools]
 py-modules = ["hello_world"]
