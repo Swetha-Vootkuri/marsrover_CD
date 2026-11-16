@@ -14,4 +14,4 @@ dependencies = []
 marsrover-cd = "hello_world:main"
 
 [tool.setuptools]
-py-modules = ["hello_world"]
+py-modules = ["hello_world", "rover"]
