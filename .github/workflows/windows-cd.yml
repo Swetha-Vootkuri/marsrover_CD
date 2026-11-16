@@ -3,8 +3,12 @@ name: Windows Package CI/CD
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   build-and-test:
@@ -40,10 +44,13 @@ jobs:
 
   deploy-windows:
     needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && github.event_name == 'push'
     runs-on: windows-2022
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -56,8 +63,30 @@ jobs:
           Write-Host "Deploying package automatically on Windows 11"
           Get-ChildItem dist
 
-          if (-not (Test-Path "scripts\deploy_windows.ps1")) {
-            throw "Deployment script not found."
+          $scriptPath = Join-Path $env:GITHUB_WORKSPACE "scripts\deploy_windows.ps1"
+
+          if (-not (Test-Path $scriptPath)) {
+            throw "Deployment script not found at $scriptPath"
           }
 
-          powershell -ExecutionPolicy Bypass -File "scripts\deploy_windows.ps1" -ArtifactPath "dist" -DeployRoot "C:\Deploy\marsrover-cd"
+          powershell -ExecutionPolicy Bypass -File $scriptPath -ArtifactPath (Join-Path $env:GITHUB_WORKSPACE "dist") -DeployRoot "C:\Deploy\marsrover-cd"
+
+  release:
+    needs: deploy-windows
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-package
+          path: dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          files: dist/*
+          generate_release_notes: true
