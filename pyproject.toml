@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marsrover-cd"
+version = "0.1.0"
+description = "Hello World walking skeleton for a simple Python application"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools]
+py-modules = ["hello_world"]

@@ -1,0 +1,63 @@
+name: Windows Package CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          python -m unittest discover -s tests -q
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-package
+          path: dist/*
+
+  deploy-windows:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: windows-2022
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-package
+          path: dist
+
+      - name: Deploy Windows package
+        shell: pwsh
+        run: |
+          Write-Host "Deploying package automatically on Windows 11"
+          Get-ChildItem dist
+
+          if (-not (Test-Path "scripts\deploy_windows.ps1")) {
+            throw "Deployment script not found."
+          }
+
+          powershell -ExecutionPolicy Bypass -File "scripts\deploy_windows.ps1" -ArtifactPath "dist" -DeployRoot "C:\Deploy\marsrover-cd"
